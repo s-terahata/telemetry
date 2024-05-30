@@ -20,7 +20,7 @@ const players = {};
 let playerCount = 0;
 const logData = {};
 
-const userAgentID = navigator.userAgent;
+const userAgentID = navigator.userAgent + "_" + new Date().getTime();
 
 map.addEventListener('mousedown', (e) => {
     isDragging = true;
