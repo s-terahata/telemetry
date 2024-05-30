@@ -20,6 +20,8 @@ const players = {};
 let playerCount = 0;
 const logData = {};
 
+const userAgentID = navigator.userAgent;
+
 map.addEventListener('mousedown', (e) => {
     isDragging = true;
     startX = e.clientX - mapX;
@@ -48,7 +50,7 @@ map.addEventListener('wheel', (e) => {
     map.style.transform = `translate(${mapX}px, ${mapY}px) scale(${scale})`;
 });
 
-const client = new Paho.MQTT.Client("wss://cgeeks.jp:8084/mqtt", "telemetry-viewer");
+const client = new Paho.MQTT.Client("wss://cgeeks.jp:8084/mqtt", userAgentID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
