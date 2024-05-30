@@ -4,6 +4,7 @@ const map = document.getElementById('map');
 const mapContainer = document.getElementById('mapContainer');
 const popup = document.getElementById('popup');
 const deviceInfoDiv = document.getElementById('deviceInfo');
+const saveLogButton = document.getElementById('saveLogButton');
 
 const posScaleX = 0.1666;
 const posScaleY = -0.1666;
@@ -17,6 +18,7 @@ let mapX = 0, mapY = 0;
 let scale = 1;
 const players = {};
 let playerCount = 0;
+const logData = {};
 
 map.addEventListener('mousedown', (e) => {
     isDragging = true;
@@ -46,7 +48,7 @@ map.addEventListener('wheel', (e) => {
     map.style.transform = `translate(${mapX}px, ${mapY}px) scale(${scale})`;
 });
 
-const client = new Paho.MQTT.Client("ws://cgeeks.jp:8083/mqtt", "telemetry-viewer");
+const client = new Paho.MQTT.Client("wss://cgeeks.jp:8084/mqtt", "telemetry-viewer");
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
@@ -77,6 +79,12 @@ function onMessageArrived(message) {
     const topic = message.destinationName;
     const userId = topic.split('/')[2];
     const telemetry = JSON.parse(message.payloadString);
+
+    const timestamp = new Date().toISOString();
+    if (!logData[userId]) {
+        logData[userId] = [];
+    }
+    logData[userId].push(`[${timestamp}] Topic: ${topic}, Message: ${message.payloadString}`);
 
     const x = (telemetry.posX * posScaleX) + posOffsetX;
     const y = (telemetry.posY * posScaleY) + posOffsetY;
@@ -177,3 +185,22 @@ function showDeviceInfo(deviceInfo) {
 popup.addEventListener('click', () => {
     popup.style.display = 'none';
 });
+
+saveLogButton.addEventListener('click', saveLogToFile);
+
+function saveLogToFile() {
+    const saveTime = new Date();
+    const saveTimeString = saveTime.toISOString().replace(/[:.]/g, '-');
+    
+    Object.keys(logData).forEach(userId => {
+        const logContent = logData[userId].join('\n');
+        const logFileName = `mqtt_log_${userId}_${saveTimeString}.txt`;
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = logFileName;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+}
