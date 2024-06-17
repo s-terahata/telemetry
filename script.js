@@ -6,8 +6,8 @@ const popup = document.getElementById('popup');
 const deviceInfoDiv = document.getElementById('deviceInfo');
 const saveLogButton = document.getElementById('saveLogButton');
 
-const posScaleX = 0.1666;
-const posScaleY = -0.1666;
+const posScaleX = 0.1;
+const posScaleY = -0.1;
 const posOffsetX = 32;
 const posOffsetY = 60;
 const rotOffsetY = 0;
@@ -17,6 +17,7 @@ let startX, startY;
 let mapX = 0, mapY = 0;
 let scale = 1;
 const players = {};
+const timeoutTimers = {};
 let playerCount = 0;
 const logData = {};
 
@@ -25,7 +26,7 @@ const userAgentID = navigator.userAgent + "_" + new Date().getTime();
 map.addEventListener('mousedown', (e) => {
     isDragging = true;
     startX = e.clientX - mapX;
-    startY = e.clientY - mapY;
+    startY = e.clientY - startY;
     map.style.cursor = 'grabbing';
 });
 
@@ -82,6 +83,9 @@ function onMessageArrived(message) {
     const userId = topic.split('/')[2];
     const telemetry = JSON.parse(message.payloadString);
 
+    // Reset or start the timeout timer for the player
+    resetTimeoutTimer(userId);
+
     const timestamp = new Date().toISOString();
     if (!logData[userId]) {
         logData[userId] = [];
@@ -114,13 +118,41 @@ function onMessageArrived(message) {
         icon.className = 'player-icon';
         marker.appendChild(icon);
 
-        marker.addEventListener('click', () => showDeviceInfo(telemetry.deviceInfo));
+        marker.addEventListener('click', () => {
+            selectedUserId = userId;
+            showDeviceInfo(telemetry.deviceInfo);
+        });
         map.appendChild(marker);
-        players[userId] = { marker, x, y, rotation };
+        players[userId] = { marker, x, y, rotation, deviceInfo: telemetry.deviceInfo };
     } else {
         const marker = players[userId].marker;
         animateMarker(marker, players[userId], { x, y, rotation });
-        players[userId] = { marker, x, y, rotation };
+        players[userId] = { marker, x, y, rotation, deviceInfo: telemetry.deviceInfo };
+    }
+
+    // Update device info if the deviceInfoDiv is open for the current user
+    if (popup.style.display === 'block' && selectedUserId === userId) {
+        showDeviceInfo(players[userId].deviceInfo);
+    }
+}
+
+function resetTimeoutTimer(userId) {
+    if (timeoutTimers[userId]) {
+        clearTimeout(timeoutTimers[userId]);
+    }
+    timeoutTimers[userId] = setTimeout(() => {
+        removePlayer(userId);
+    }, 10000); // 10 seconds
+}
+
+function removePlayer(userId) {
+    if (players[userId]) {
+        map.removeChild(players[userId].marker);
+        delete players[userId];
+        delete logData[userId];
+        delete timeoutTimers[userId];
+        playerCount--;
+        updatePlayerCountUI();
     }
 }
 
@@ -172,6 +204,8 @@ const thermalStatusMap = {
     "3": "Critical"
 };
 
+let selectedUserId = null;
+
 function showDeviceInfo(deviceInfo) {
     let info = `<p>Device Model: ${deviceInfo.deviceModel}</p>`;
     info += `<p>Device Name: ${deviceInfo.deviceName}</p>`;
@@ -186,6 +220,7 @@ function showDeviceInfo(deviceInfo) {
 
 popup.addEventListener('click', () => {
     popup.style.display = 'none';
+    selectedUserId = null;
 });
 
 saveLogButton.addEventListener('click', saveLogToFile);
