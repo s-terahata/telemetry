@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Telemetry Publish Test</title>
+    <style>
+        #pollingList {
+            padding: 0;
+            list-style-type: none;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+            #pollingList li {
+                width: 250px;
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid #ddd;
+            }
+
+    </style>
+</head>
+<body>
+    <div id="status" class="infomation">Connecting to MQTT broker...</div>
+    <div id="controlArea">
+        <div>
+            <span>Polling Count: </span>
+            <input id="pollingCount" value="10" />
+        </div>
+        <button id="pollingStartButton" onclick="startPolling()">Start Polling</button>
+        <button id="pollingStopButton" onclick="stopPolling()" disabled>Stop Polling</button>
+        <div id="pollingStatus">Polling Stopped.</div>
+    </div>
+    <div id="listArea">
+        <ul id="pollingList"></ul>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="pubtest.js"></script>
+</body>
+</html>

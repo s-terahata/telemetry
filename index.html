@@ -4,95 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Telemetry</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background-color: #e5e1e4;
-        }
-        #mapContainer {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            overflow: hidden;
-        }
-        #map {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            background: url('map.png') no-repeat center center;
-            background-size: contain;
-            cursor: grab;
-        }
-        .marker {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-        }
-        .player-icon {
-            width: 100%;
-            height: 100%;
-        }
-        .player-number {
-            position: absolute;
-            top: 0;
-            left: 0;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.0);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        #status {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-        }
-        #coordinates {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-        }
-        .popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-            z-index: 1001;
-        }
-        .popup h2 {
-            margin: 0 0 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <div id="mapContainer">
         <div id="map"></div>
     </div>
-    <div id="status">Connecting to MQTT broker...</div>
-    <div id="coordinates">Connected Players: 0</div>
     <div id="popup" class="popup">
         <h2>Device Info</h2>
-        <div id="deviceInfo"></div>
-    <button id="saveLogButton">Save Log</button>
+        <div id="deviceInfo">
+            <dl class="definition-list"></dl>
+        </div>
+        <div>
+            <button id="saveLogButton" class="info">Save Log</button>
+        </div>
+        <div>
+            <button id="forceStopButton" class="warn">Force Stop</button>
+        </div>
+    </div>
+    <div id="informations" class="information">
+        <div id="status">Connecting to MQTT broker...</div>
+        <h2 id="coordinates">Connected Players: 0</h2>
+        <div>
+            <button id="saveLogAllButton" class="info">Save All Log</button>
+        </div>
+        <div id="devicesArea">
+            <ul id="deviceList">
+            </ul>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script src="script.js"></script>
