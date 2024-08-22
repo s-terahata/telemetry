@@ -8,7 +8,7 @@ const pollingList = document.getElementById('pollingList')
 const userAgentID = navigator.userAgent + "_" + new Date().getTime();
 const encoder = new TextEncoder();
 
-const brokerUrl = "wss://cgeeks.jp:8084/mqtt"
+const brokerUrl = "wss://m8f92daf.ala.asia-southeast1.emqxsl.com:8084/mqtt"
 const topicRoot = "player/telemetry/"
 
 // ポーリングの間隔[ms]
@@ -44,6 +44,8 @@ client.onConnectionLost = onConnectionLost;
 client.connect({
     onSuccess: onConnect,
     onFailure: onFailure,
+    userName: "tyffon_mirrorge",
+    password: "tyffon1111",
 });
 
 // 接続完了時
@@ -116,12 +118,12 @@ function createPollingInfo(count) {
         const batteryStatus = Math.floor(Math.random() * 4) + 1;
         const thermal = Math.floor(Math.random() * 4);
         const deviceInfo = createDeviceInfo(batteryLevel, batteryStatus, thermal, "Test Vision Pro", `Test ${i}`, uid, "MacOS");
-
+        const gameInfo = createGameInfo();
         // 位置情報を作成
         const posX = (Math.random() - 0.5) * 200.0;
         const posY = (Math.random() - 0.5) * 100.0;
         const angle = Math.random() * 360;
-        players[uid] = { posX, posY, angle, deviceInfo };
+        players[uid] = { posX, posY, angle, deviceInfo, gameInfo };
 
         // リストに要素を追加
         const itemHeader = document.createElement('h3');
@@ -157,7 +159,7 @@ function publishDeviceMessage() {
         player.angle = diffAngle;
 
         // ペイロードを作成
-        const payload = createPayloadBytes(player.posX, player.posY, player.angle, player.deviceInfo);
+        const payload = createPayloadBytes(player.posX, player.posY, player.angle, player.deviceInfo, player.gameInfo);
         publishMessage(topic, payload);
 
         // 表示情報を更新
@@ -197,13 +199,21 @@ function createDeviceInfo(batteryLevel, batteryStatus, thermalStatus, model, nam
     }
 }
 
+function createGameInfo() {
+    return {
+        status: "Playing",
+        time: 0,
+    }
+}
+
 // 位置情報のJSONの作成
-function createPayloadBytes(posX, posY, angle, deviceInfo) {
+function createPayloadBytes(posX, posY, angle, deviceInfo, gameInfo) {
     const telemetry = {
         posX: posX,
         posY: posY,
         angle: angle,
-        deviceInfo: deviceInfo
+        deviceInfo: deviceInfo,
+        gameInfo: gameInfo,
     };
     const jsonString = JSON.stringify(telemetry)
     return encoder.encode(jsonString)

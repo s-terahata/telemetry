@@ -1,3 +1,9 @@
+const deviceLabels = {
+    "649CC3DA-039D-5570-9605-1A39B4C10502": "å¯ºç•‘ MBP",
+    "uniqueDeviceId2": "Custom Device Name 2",
+    "uniqueDeviceId3": "Custom Device Name 3",
+};
+
 const statusDiv = document.getElementById('status');
 const coordinatesDiv = document.getElementById('coordinates');
 const deviceList = document.getElementById('deviceList')
@@ -10,36 +16,36 @@ const saveLogAllButton = document.getElementById('saveLogAllButton');
 const forceStopButton = document.getElementById('forceStopButton');
 const mapInfoDiv = document.getElementById('mapInfo');
 
-// İ’è’l
-const mqttBrokerUrl = "wss://cgeeks.jp:8084/mqtt";
-const subscribeTopic = "player/telemetry/#"
-const posScaleX = 0.1;
-const posScaleY = -0.1;
-const posOffsetX = 32;
-const posOffsetY = 60;
-const rotOffsetY = 0;
+// MQTTãƒ–ãƒ­ãƒ¼ã‚«ãƒ¼ã®URL
+const mqttBrokerUrl = "wss://m8f92daf.ala.asia-southeast1.emqxsl.com:8084/mqtt";
+const subscribeTopic = "player/telemetry/#";
+const posScaleX = 0.23;
+const posScaleY = -0.23;
+const posOffsetX = 31;
+const posOffsetY = 63;
+const rotOffsetY = -95;
 
 const userAgentID = navigator.userAgent + "_" + new Date().getTime();
 
-// ƒoƒbƒeƒŠ[ó‘Ô
+// ãƒãƒƒãƒ†ãƒªãƒ¼çŠ¶æ…‹ãƒãƒƒãƒ—
 const batteryStatusMap = {
-    "0": "Unknown",
-    "1": "Charging",
-    "2": "Discharging",
-    "3": "NotCharging",
-    "4": "Full"
+    "0": "ä¸æ˜",
+    "1": "å……é›»ä¸­",
+    "2": "æ”¾é›»ä¸­",
+    "3": "å……é›»ã—ã¦ã„ã¾ã›ã‚“",
+    "4": "æº€å……é›»"
 };
 
-// ”Mó‘Ô
+// æ¸©åº¦çŠ¶æ…‹ãƒãƒƒãƒ—
 const thermalStatusMap = {
-    "-1": "Unknown",
-    "0": "Nominal",
-    "1": "Fair",
-    "2": "Serious",
-    "3": "Critical"
+    "-1": "ä¸æ˜",
+    "0": "æ­£å¸¸",
+    "1": "ã‚„ã‚„æ³¨æ„",
+    "2": "æ³¨æ„ï¼ˆä¸å®‰å®šï¼‰",
+    "3": "å±é™ºï¼ˆåœæ­¢ã®æã‚Œï¼‰"
 };
 
-// ƒrƒ…[ƒ|[ƒg‚ÌƒTƒCƒY
+// ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã®ã‚µã‚¤ã‚º
 let viewportOriginWidth = 0;
 let viewportOriginHeight = 0;
 let viewportWidth = 0;
@@ -56,10 +62,10 @@ const timeoutTimers = {};
 let playerCount = 0;
 const logData = {};
 
-// ‘I‘ğ’†‚Ìƒ†[ƒU[ID
+// é¸æŠã•ã‚ŒãŸãƒ¦ãƒ¼ã‚¶ãƒ¼ID
 let selectedUserId = null;
 
-// ƒEƒCƒ“ƒhƒEƒ[ƒh‚Ìˆ—
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ­ãƒ¼ãƒ‰æ™‚ã®å‡¦ç†
 window.addEventListener('load', () => {
     viewportWidthOrigin = window.innerWidth;
     viewportHeightOrigin = window.innerHeight;
@@ -67,61 +73,62 @@ window.addEventListener('load', () => {
     viewportHeight = window.innerHeight;
 });
 
-// ƒrƒ…[ƒ|[ƒg‚ÌƒTƒCƒY•ÏX‚Ìˆ—
+// ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã®ã‚µã‚¤ã‚ºå¤‰æ›´æ™‚ã®å‡¦ç†
 window.addEventListener('resize', () => {
     const diffX = (window.innerWidth - viewportWidth) / viewportWidthOrigin;
     const diffY = (window.innerHeight - viewportHeight) / viewportHeightOrigin;
     viewportWidth = window.innerWidth;
     viewportHeight = window.innerHeight;
     Object.keys(players).forEach(key => {
-        // ˆÊ’u‚Ì•â³
-        const player = players[key]
+        // åº§æ¨™ã®èª¿æ•´
+        const player = players[key];
         player.x = player.x + diffX;
         player.y = player.y + diffY;
-        // ƒ}[ƒJ[ˆÊ’u‚ÌXV
+        // ãƒãƒ¼ã‚«ãƒ¼åº§æ¨™ã®æ›´æ–°
         const marker = player.marker;
         marker.style.left = `${player.x}%`;
         marker.style.top = `${player.y}%`;
     });
 });
 
-// ƒ}ƒbƒvã‚Åƒ}ƒEƒXƒ{ƒ^ƒ“‰Ÿ‰º
+// ãƒãƒƒãƒ—ä¸Šã§ãƒã‚¦ã‚¹ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®å‡¦ç†
 map.addEventListener('mousedown', (e) => {
     isDragging = true;
     startX = e.clientX - mapX;
     startY = e.clientY - mapY;
-    map.style.cursor = 'grabbing';
+    map.style.cursor = 'ã‚°ãƒ©ãƒ“ãƒ³ã‚°';
 });
 
-// ƒ}ƒbƒvã‚Åƒ}ƒEƒX“®ì
+// ãƒãƒƒãƒ—ä¸Šã§ãƒã‚¦ã‚¹ç§»å‹•æ™‚ã®å‡¦ç†
 map.addEventListener('mousemove', (e) => {
     if (isDragging) {
         mapX = e.clientX - startX;
         mapY = e.clientY - startY;
-        changeMapTransform()
+        changeMapTransform();
     }
 });
 
-// ƒ}ƒbƒvã‚Åƒ}ƒEƒXƒ{ƒ^ƒ“—£‚·
+// ãƒãƒƒãƒ—ä¸Šã§ãƒã‚¦ã‚¹ãƒœã‚¿ãƒ³ã‚’é›¢ã—ãŸã¨ãã®å‡¦ç†
 map.addEventListener('mouseup', () => {
     isDragging = false;
-    map.style.cursor = 'grab';
+    map.style.cursor = 'ã‚°ãƒ©ãƒ–';
 });
 
-// ƒ}ƒbƒvã‚Åƒ}ƒEƒXƒzƒC[ƒ‹
+// ãƒãƒƒãƒ—ä¸Šã§ãƒã‚¦ã‚¹ãƒ›ã‚¤ãƒ¼ãƒ«ã‚’ä½¿ç”¨ã—ãŸã¨ãã®å‡¦ç†
 map.addEventListener('wheel', (e) => {
     e.preventDefault();
     const scaleAmount = 0.1;
     scale += e.deltaY > 0 ? -scaleAmount : scaleAmount;
     scale = Math.min(Math.max(0.5, scale), 5);
-    changeMapTransform()
+    changeMapTransform();
 });
 
+// ãƒãƒƒãƒ—ã®å¤‰å½¢ã‚’æ›´æ–°ã™ã‚‹é–¢æ•°
 function changeMapTransform() {
     map.style.transform = `translate(${mapX}px, ${mapY}px) scale(${scale})`;
 }
 
-// MQTTƒNƒ‰ƒCƒAƒ“ƒg–{‘Ì
+// MQTTã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ç”Ÿæˆ
 const client = new Paho.MQTT.Client(mqttBrokerUrl, userAgentID);
 
 client.onConnectionLost = onConnectionLost;
@@ -129,129 +136,135 @@ client.onMessageArrived = onMessageArrived;
 client.connect({
     onSuccess: onConnect,
     onFailure: onFailure,
+    userName: "tyffon_mirrorge",
+    password: "tyffon1111",
 });
 
-// ƒƒbƒZ[ƒW‘—M
+// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡é–¢æ•°
 function publishMessage(topic, payload) {
     const message = new Paho.MQTT.Message(payload);
     message.destinationName = topic;
-    client.send(message)
-    console.log(`Message published: Topic: ${topic}, Payload: ${payload}`)
+    client.send(message);
+    console.log(`ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡: ãƒˆãƒ”ãƒƒã‚¯: ${topic}, ãƒšã‚¤ãƒ­ãƒ¼ãƒ‰: ${payload}`);
 }
 
-// Ú‘±Š®—¹
+// æ¥ç¶šæˆåŠŸæ™‚ã®å‡¦ç†
 function onConnect() {
-    console.log("Connected to MQTT broker");
-    statusDiv.innerHTML = "Connected to MQTT broker";
+    console.log("ç®¡ç†ã‚µãƒ¼ãƒãƒ¼ã«æ¥ç¶šã—ã¾ã—ãŸ");
+    statusDiv.innerHTML = "ç®¡ç†ã‚µãƒ¼ãƒãƒ¼ã«æ¥ç¶šã—ã¾ã—ãŸ";
     client.subscribe(subscribeTopic);
 }
 
-// Ú‘±¸”s
+// æ¥ç¶šå¤±æ•—æ™‚ã®å‡¦ç†
 function onFailure(responseObject) {
-    console.log("Failed to connect to MQTT broker: " + responseObject.errorMessage);
-    statusDiv.innerHTML = "Failed to connect to MQTT broker: " + responseObject.errorMessage;
+    console.log("ç®¡ç†ã‚µãƒ¼ãƒãƒ¼ã¸ã®æ¥ç¶šã«å¤±æ•—ã—ã¾ã—ãŸ: " + responseObject.errorMessage);
+    statusDiv.innerHTML = "ç®¡ç†ã‚µãƒ¼ãƒãƒ¼ã¸ã®æ¥ç¶šã«å¤±æ•—ã—ã¾ã—ãŸ: " + responseObject.errorMessage;
 }
 
-// Ø’f
+// æ¥ç¶šåˆ‡æ–­æ™‚ã®å‡¦ç†
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
-        console.log("Connection lost: " + responseObject.errorMessage);
-        statusDiv.innerHTML = "Connection lost: " + responseObject.errorMessage;
+        console.log("æ¥ç¶šãŒå¤±ã‚ã‚Œã¾ã—ãŸ: " + responseObject.errorMessage);
+        statusDiv.innerHTML = "æ¥ç¶šãŒå¤±ã‚ã‚Œã¾ã—ãŸ: " + responseObject.errorMessage;
     }
 }
 
-// ƒƒbƒZ[ƒWóM
+// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸åˆ°ç€æ™‚ã®å‡¦ç†
 function onMessageArrived(message) {
     const topic = message.destinationName;
     const userId = topic.split('/')[2];
     const telemetry = JSON.parse(message.payloadString);
 
-    // Reset or start the timeout timer for the player
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã‚¿ã‚¤ãƒãƒ¼ã‚’ãƒªã‚»ãƒƒãƒˆã¾ãŸã¯é–‹å§‹
     resetTimeoutTimer(userId);
 
     const timestamp = new Date().toISOString();
     if (!logData[userId]) {
         logData[userId] = [];
     }
-    logData[userId].push(`[${timestamp}] Topic: ${topic}, Message: ${message.payloadString}`);
+    logData[userId].push(`[${timestamp}] ãƒˆãƒ”ãƒƒã‚¯: ${topic}, ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸: ${message.payloadString}`);
 
-    const x = (telemetry.posX * posScaleX) + posOffsetX;
-    const y = (telemetry.posY * posScaleY) + posOffsetY;
+    const rawX = (telemetry.posX * posScaleX) + posOffsetX;
+    const rawY = (telemetry.posY * posScaleY) + posOffsetY;
+    const rotated = applyRotationOffset(rawX, rawY, rotOffsetY, posOffsetX, posOffsetY);
+    const x = rotated.x;
+    const y = rotated.y;
     const rotation = telemetry.angle + rotOffsetY;
 
     if (!players[userId]) {
         playerCount++;
         updatePlayerCountUI();
 
-        // ƒ}ƒbƒv‚Éƒ}[ƒJ[‚ğ’Ç‰Á
+        // ãƒãƒƒãƒ—ã«ãƒãƒ¼ã‚«ãƒ¼ã‚’è¿½åŠ 
         const marker = document.createElement('div');
         marker.className = 'marker';
         marker.style.left = `${x}%`;
         marker.style.top = `${y}%`;
         marker.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
 
-        // ƒvƒŒƒCƒ„[”Ô†‚ğƒ}[ƒJ[‚É’Ç‰Á
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·ã‚’ãƒãƒ¼ã‚«ãƒ¼ã«è¿½åŠ 
         const playerNumber = document.createElement('div');
         playerNumber.className = 'player-number';
         playerNumber.innerText = playerCount;
         marker.appendChild(playerNumber);
 
-        // ƒAƒCƒRƒ“‚Æ‚µ‚Äimgƒ^ƒO‚ğì¬
+        // ã‚¢ã‚¤ã‚³ãƒ³ã¨imgã‚¿ã‚°ã‚’æŒ¿å…¥
         const icon = document.createElement('img');
         icon.src = 'player.png';
         icon.className = 'player-icon';
         marker.appendChild(icon);
-        // ƒ}[ƒJ[ƒNƒŠƒbƒNˆ—
+
+        // ãƒãƒ¼ã‚«ãƒ¼ã‚¯ãƒªãƒƒã‚¯æ™‚ã®å‡¦ç†
         marker.addEventListener('click', () => {
-            onSelectDevice(userId, telemetry.deviceInfo)
-            scrollSelectItem(userId)
+            onSelectDevice(userId, telemetry.deviceInfo);
+            scrollSelectItem(userId);
         });
         map.appendChild(marker);
 
-        // ƒŠƒXƒg‚ÉƒfƒoƒCƒXî•ñ‚ğ’Ç‰Á
-        const listItem = createListItem(playerCount, telemetry.deviceInfo)
-        // ƒŠƒXƒg€–ÚƒNƒŠƒbƒNˆ—
+        // ãƒªã‚¹ãƒˆã«ãƒ‡ãƒã‚¤ã‚¹æƒ…å ±ã‚’è¿½åŠ 
+        const listItem = createListItem(playerCount, telemetry.deviceInfo, telemetry.gameInfo);
+        // ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã®ã‚¯ãƒªãƒƒã‚¯å‡¦ç†
         listItem.addEventListener('click', () => {
-            onSelectDevice(userId, telemetry.deviceInfo)
+            onSelectDevice(userId, telemetry.deviceInfo);
         });
         deviceList.appendChild(listItem);
 
-        // ƒvƒŒƒCƒ„[î•ñ‚ğXV
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æƒ…å ±ã‚’æ›´æ–°
         players[userId] = { number: playerCount, marker, listItem, x, y, rotation, deviceInfo: telemetry.deviceInfo };
     } else {
-        // Šù‘¶‚ÌƒvƒŒƒCƒ„[î•ñ‚ğXV
+        // æ—¢å­˜ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æƒ…å ±ã‚’æ›´æ–°
         const marker = players[userId].marker;
         animateMarker(marker, players[userId], { x, y, rotation });
-        const listItem = players[userId].listItem
-        updateListItem(listItem, telemetry.deviceInfo)
+        const listItem = players[userId].listItem;
+        updateListItem(listItem, telemetry.deviceInfo, telemetry.gameInfo);
         players[userId] = { number: players[userId].number, marker, listItem, x, y, rotation, deviceInfo: telemetry.deviceInfo };
     }
 
-    // Update device info if the deviceInfoDiv is open for the current user
+    // ç¾åœ¨ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã®ãƒ‡ãƒã‚¤ã‚¹æƒ…å ±ã‚’è¡¨ç¤º
     if (popup.style.display === 'block' && selectedUserId === userId) {
         showDeviceInfo(players[userId].number, players[userId].deviceInfo);
     }
 }
 
-// ƒ}[ƒJ[‚Ü‚½‚ÍƒŠƒXƒg€–Ú‚ğ‘I‘ğ‚µ‚½‚Æ‚«‚Ìˆ—
+// ãƒãƒ¼ã‚«ãƒ¼ã‚¯ãƒªãƒƒã‚¯æ™‚ã®ãƒªã‚¹ãƒˆ
 function onSelectDevice(userId) {
     selectedUserId = userId;
-    changeSelectPlayer()
+    changeSelectPlayer();
     showDeviceInfo(players[userId].number, players[userId].deviceInfo);
 }
 
-// ƒvƒŒƒCƒ„[î•ñ‚ÌXV
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼é¸æŠæ™‚ã®UIæ›´æ–°
 function changeSelectPlayer() {
     Object.keys(players).forEach(key => {
-        players[key].marker.classList.remove('selected')
-        players[key].listItem.classList.remove('selected')
-    })
-    players[selectedUserId].marker.classList.add('selected')
-    players[selectedUserId].listItem.classList.add('selected')
+        players[key].marker.classList.remove('selected');
+        players[key].listItem.classList.remove('selected');
+    });
+    players[selectedUserId].marker.classList.add('selected');
+    players[selectedUserId].listItem.classList.add('selected');
     focusPlayerMarker(selectedUserId);
 }
 
-// ‘I‘ğ‚µ‚½€–Ú‚Ü‚ÅƒXƒNƒ[ƒ‹‚·‚é
+// é¸æŠã—ãŸã‚¢ã‚¤ãƒ†ãƒ ã¾ã§ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
 function scrollSelectItem(userId) {
     const itemRect = players[userId].listItem.getBoundingClientRect();
     const containerRect = deviceList.getBoundingClientRect();
@@ -260,41 +273,40 @@ function scrollSelectItem(userId) {
         top: scrollTo,
         behavior: 'smooth'
     });
-
 }
 
-// ‘I‘ğ‚µ‚½ƒ}[ƒJ[‚ğ’†S‚É•\¦‚·‚é
+// é¸æŠã—ãŸãƒãƒ¼ã‚«ãƒ¼ã‚’ä¸­å¤®ã«è¡¨ç¤º
 function focusPlayerMarker(userId) {
     const marker = players[userId].marker;
-    // ’n}‚Ì’†S
+    // ãƒãƒƒãƒ—ã®ä¸­å¤®
     const mapRect = map.getBoundingClientRect();
-    const mapCenterX = mapRect.left + mapRect.width / 2
-    const mapCenterY = mapRect.top + mapRect.height / 2
-    // ‘I‘ğƒ}[ƒJ[‚Ì’†S
+    const mapCenterX = mapRect.left + mapRect.width / 2;
+    const mapCenterY = mapRect.top + mapRect.height / 2;
+    // ãƒãƒ¼ã‚«ãƒ¼ã®ä¸­å¤®
     const markerRect = marker.getBoundingClientRect();
-    const markerCenterX = markerRect.left + markerRect.width / 2
-    const markerCenterY = markerRect.top + markerRect.height / 2
-    // ˆÊ’u‚ğŒvZ
+    const markerCenterX = markerRect.left + markerRect.width / 2;
+    const markerCenterY = markerRect.top + markerRect.height / 2;
+    // åº§æ¨™ã®è¨ˆç®—
     mapX = Math.floor(mapCenterX - markerCenterX);
     mapY = Math.floor(mapCenterY - markerCenterY);
 
-    changeMapTransform()
+    changeMapTransform();
 }
 
-// ƒ^ƒCƒ€ƒAƒEƒgƒŠƒZƒbƒg
+// ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã‚¿ã‚¤ãƒãƒ¼ã®ãƒªã‚»ãƒƒãƒˆ
 function resetTimeoutTimer(userId) {
     if (timeoutTimers[userId]) {
         clearTimeout(timeoutTimers[userId]);
     }
     timeoutTimers[userId] = setTimeout(() => {
         removePlayer(userId);
-    }, 10000); // 10 seconds
+    }, 10000); // 10ç§’
 }
 
-// ƒvƒŒƒCƒ„[Ø’f
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‰Šé™¤
 function removePlayer(userId) {
     if (players[userId]) {
-        deviceList.removeChild(players[userId].listItem)
+        deviceList.removeChild(players[userId].listItem);
         map.removeChild(players[userId].marker);
         delete players[userId];
         delete logData[userId];
@@ -304,12 +316,12 @@ function removePlayer(userId) {
     }
 }
 
-// Šp“x‚Ì³‹K‰»
+// è§’åº¦ã®æ­£è¦åŒ–
 function normalizeAngle(angle) {
     return ((angle + 180) % 360 + 360) % 360 - 180;
 }
 
-// ƒ}[ƒJ[‚ÌƒAƒjƒ[ƒVƒ‡ƒ“
+// ãƒãƒ¼ã‚«ãƒ¼ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
 function animateMarker(marker, from, to, duration = 1000) {
     const startTime = performance.now();
 
@@ -334,14 +346,15 @@ function animateMarker(marker, from, to, duration = 1000) {
     requestAnimationFrame(animate);
 }
 
-// ƒŠƒXƒgƒAƒCƒeƒ€‚Ìì¬
-function createListItem(playerCount, deviceInfo) {
+// ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã®ç”Ÿæˆ
+function createListItem(playerCount, deviceInfo, gameInfo) {
     const itemHeader = document.createElement('h3');
-    itemHeader.innerHTML = `Device ${playerCount}`
+    let labelName = deviceLabels[deviceInfo.deviceUniqueIdentifier] || `Unknown ${playerCount}`;
+    itemHeader.innerHTML = labelName;
 
     const itemBody = document.createElement('dl');
-    itemBody.classList.add("definition-list")
-//  itemBody.innerHTML = createListItemHtml(deviceInfo)
+    itemBody.classList.add("definition-list");
+    itemBody.innerHTML = createListItemHtml(deviceInfo, gameInfo);
 
     const listItem = document.createElement('li');
     listItem.classList.add('information');
@@ -351,62 +364,63 @@ function createListItem(playerCount, deviceInfo) {
     return listItem;
 }
 
-// ƒŠƒXƒgƒAƒCƒeƒ€‚ÌXV
-function updateListItem(listItem, deviceInfo) {
+// ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã®æ›´æ–°
+function updateListItem(listItem, deviceInfo, gameInfo) {
     const itemBody = listItem.querySelector(".definition-list");
-//  itemBody.innerHTML = createListItemHtml(deviceInfo)
+    itemBody.innerHTML = createListItemHtml(deviceInfo, gameInfo);
 }
 
-// ƒŠƒXƒgƒAƒCƒeƒ€‚Ì“à—eì¬
-function createListItemHtml(deviceInfo) {
-    let itemText = `<dt>Connection</dt><dd>Connected</dd>`;
-    itemText += `<dt>Battery Level</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
-    itemText += `<dt>Battery Status</dt><dd>${batteryStatusMap[deviceInfo.batteryStatus]}</dd>`;
-    itemText += `<dt>Thermal Status</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
+// ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã®HTMLç”Ÿæˆ
+function createListItemHtml(deviceInfo, gameInfo) {
+    let itemText = `<dt>ã‚¿ã‚¤ãƒ ãƒ©ã‚¤ãƒ³</dt><dd>${formatTime(gameInfo.time)}</dd>`;
+    itemText += `<dt>ãƒãƒƒãƒ†ãƒªãƒ¼ãƒ¬ãƒ™ãƒ«</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
+    itemText += `<dt>æ¸©åº¦çŠ¶æ…‹</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
     return itemText;
 }
 
-// ƒvƒŒƒCƒ„[ŒvãUI‚ÌXV
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ•°UIã®æ›´æ–°
 function updatePlayerCountUI() {
-    coordinatesDiv.innerHTML = `Connected Players: ${playerCount}`;
+    coordinatesDiv.innerHTML = `æ¥ç¶šä¸­ãƒ‡ãƒã‚¤ã‚¹: ${playerCount}`;
 }
 
-// ƒfƒoƒCƒXî•ñ‚Ì•\¦
+// ãƒ‡ãƒã‚¤ã‚¹æƒ…å ±ã®è¡¨ç¤º
 function showDeviceInfo(number, deviceInfo) {
-    // ƒwƒbƒ_î•ñ
-    const header = popup.querySelector("h2")
-    header.innerHTML = `Device ${number} Info`
-    // –{‘Ìî•ñ
+    // ãƒ˜ãƒƒãƒ€ãƒ¼éƒ¨åˆ†
+    const header = popup.querySelector("h2");
+    const labelName = deviceLabels[deviceInfo.deviceUniqueIdentifier] || `Unknown ${number} Info`;
+    header.innerHTML = labelName;
+
+    // æœ¬æ–‡éƒ¨åˆ†
     const body = deviceInfoDiv.querySelector(".definition-list");
-    let info = `<dt>Device Model</dt><dd>${deviceInfo.deviceModel}</dd>`;
-    info += `<dt>Device Name</dt><dd>${deviceInfo.deviceName}</dd>`;
-    info += `<dt>Device ID</dt><dd>${deviceInfo.deviceUniqueIdentifier}</dd>`;
+    let info = `<dt>ãƒ‡ãƒã‚¤ã‚¹ãƒ¢ãƒ‡ãƒ«</dt><dd>${deviceInfo.deviceModel}</dd>`;
+    info += `<dt>ãƒ‡ãƒã‚¤ã‚¹å</dt><dd>${deviceInfo.deviceName}</dd>`;
+    info += `<dt>ãƒ‡ãƒã‚¤ã‚¹ID</dt><dd>${deviceInfo.deviceUniqueIdentifier}</dd>`;
     info += `<dt>OS</dt><dd>${deviceInfo.operatingSystem}</dd>`;
-    info += `<dt>Battery Level</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
-    info += `<dt>Battery Status</dt><dd>${batteryStatusMap[deviceInfo.batteryStatus]}</dd>`;
-    info += `<dt>Thermal Status</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
+    info += `<dt>ãƒãƒƒãƒ†ãƒªãƒ¼ãƒ¬ãƒ™ãƒ«</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
+    info += `<dt>ãƒãƒƒãƒ†ãƒªãƒ¼çŠ¶æ…‹</dt><dd>${batteryStatusMap[deviceInfo.batteryStatus]}</dd>`;
+    info += `<dt>æ¸©åº¦çŠ¶æ…‹</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
     body.innerHTML = info;
 
     popup.style.display = 'block';
 }
 
-// ƒ|ƒbƒvƒAƒbƒvƒNƒŠƒbƒN
+// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¯ãƒ­ãƒ¼ã‚ºæ™‚ã®å‡¦ç†
 popup.addEventListener('click', () => {
     popup.style.display = 'none';
     selectedUserId = null;
 });
 
-// ‘SƒƒO•Û‘¶ƒ{ƒ^ƒ“ƒNƒŠƒbƒN
+// ã™ã¹ã¦ã®ãƒ­ã‚°ä¿å­˜ãƒœã‚¿ãƒ³ã‚¯ãƒªãƒƒã‚¯æ™‚ã®å‡¦ç†
 saveLogAllButton.addEventListener('click', saveLogToFileAll);
 
-// ƒƒO•Û‘¶ƒ{ƒ^ƒ“ƒNƒŠƒbƒN
+// ãƒ­ã‚°ä¿å­˜ãƒœã‚¿ãƒ³ã‚¯ãƒªãƒƒã‚¯æ™‚ã®å‡¦ç†
 saveLogButton.addEventListener('click', () => {
     const saveTime = new Date();
     const saveTimeString = saveTime.toISOString().replace(/[:.]/g, '-');
     saveLogToFile(selectedUserId, saveTimeString);
 });
 
-// ‘S‘Ì‚ÌƒƒOƒtƒ@ƒCƒ‹o—Í
+// ã™ã¹ã¦ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã®ãƒ­ã‚°ã‚’ä¿å­˜
 function saveLogToFileAll() {
     const saveTime = new Date();
     const saveTimeString = saveTime.toISOString().replace(/[:.]/g, '-');
@@ -416,7 +430,7 @@ function saveLogToFileAll() {
     });
 }
 
-// w’èƒ†[ƒU[‚ÌƒƒO‚ğo—Í
+// æŒ‡å®šã—ãŸãƒ¦ãƒ¼ã‚¶ãƒ¼ã®ãƒ­ã‚°ã‚’ä¿å­˜
 function saveLogToFile(userId, timeString) {
     const logContent = logData[userId].join('\n');
     const logFileName = `mqtt_log_${userId}_${timeString}.txt`;
@@ -429,13 +443,33 @@ function saveLogToFile(userId, timeString) {
     URL.revokeObjectURL(url);
 }
 
-// ‹Ù‹}’â~ƒ{ƒ^ƒ“ƒNƒŠƒbƒN
+// å¼·åˆ¶åœæ­¢ãƒœã‚¿ãƒ³ã‚¯ãƒªãƒƒã‚¯æ™‚ã®å‡¦ç†
 forceStopButton.addEventListener('click', () => {
     publishStopSignal(selectedUserId);
 });
 
-// ‹Ù‹}’â~‚ÌƒVƒOƒiƒ‹‚ğMQTT‚Å”­M
+// å¼·åˆ¶åœæ­¢ä¿¡å·ã‚’MQTTã§é€ä¿¡
 function publishStopSignal(userId) {
-    // ƒƒbƒZ[ƒW“à—eAƒgƒsƒbƒN–¢’è‚Ì‚½‚ßƒƒO‚¾‚¯o—Í
-    console.log(`Stopped Player ${userId}.`)
+    console.log(`ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ ${userId} ã‚’åœæ­¢ã—ã¾ã—ãŸã€‚`);
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+// å›è»¢ã‚’é©ç”¨ã™ã‚‹é–¢æ•°
+function applyRotationOffset(x, y, angle, centerX, centerY) {
+    const radians = angle * Math.PI / 180; // è§’åº¦ã‚’ãƒ©ã‚¸ã‚¢ãƒ³ã«å¤‰æ›
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+
+    const dx = x - centerX;
+    const dy = y - centerY;
+
+    const rotatedX = cos * dx - sin * dy + centerX;
+    const rotatedY = sin * dx + cos * dy + centerY;
+
+    return { x: rotatedX, y: rotatedY };
 }
