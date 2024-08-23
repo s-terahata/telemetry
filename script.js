@@ -1,7 +1,7 @@
 const deviceLabels = {
-    "649CC3DA-039D-5570-9605-1A39B4C10502": "寺畑 MBP",
-    "uniqueDeviceId2": "Custom Device Name 2",
-    "uniqueDeviceId3": "Custom Device Name 3",
+    "649CC3DA-039D-5570-9605-1A39B4C10502": "[DEV] Terahata MBP",
+    "00DFABD2-AAEB-4AB7-B90E-6C6DDF7E111F": "[DEV] Terahata AVP",
+    "00DFABD2-AAEB-4AB7-B90E-6C6DDF7E111F": "[DEV] Aoyama AVP",
 };
 
 const statusDiv = document.getElementById('status');
