@@ -76,7 +76,7 @@ body {
 }
 
 #deviceList {
-    height: 100vh;
+    height: 85vh;
     overflow-y: auto;
     padding: 0;
     list-style-type: none;
