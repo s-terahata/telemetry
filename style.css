@@ -61,26 +61,25 @@ body {
 #informations {
     position: absolute;
     width: 25vw;
-    top: 10px;
-    bottom: 10px;
-    left: 10px;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
     z-index: 1000;
-    padding: 10px;
+    padding: 0px;
     font-size: 0.5em;
 }
 
 .information {
     background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
+    padding: 0px;
     border-radius: 5px;
 }
 
 #deviceList {
-    height: 75vh;
+    height: 100vh;
     overflow-y: auto;
     padding: 0;
     list-style-type: none;
-    font-size: 0.5em;
 }
 
     #deviceList li {
@@ -88,7 +87,6 @@ body {
         margin: 10px 0 10px 0;
         padding: 0 10px 0 10px;
         border: 1px solid #ddd;
-        font-size: 1em;
     }
 
         #deviceList li.selected {
@@ -96,7 +94,6 @@ body {
         }
 
 .definition-list {
-    font-size: 6px;
     margin: 0;
     padding: 0;
     list-style: none;
