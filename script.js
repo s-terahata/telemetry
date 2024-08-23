@@ -65,6 +65,25 @@ const logData = {};
 // 選択されたユーザーID
 let selectedUserId = null;
 
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('gesturechange', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('gestureend', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('touchmove', function (e) {
+    if (e.scale !== 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+
 // ウィンドウロード時の処理
 window.addEventListener('load', () => {
     viewportWidthOrigin = window.innerWidth;
