@@ -28,14 +28,14 @@ body {
     height: 20px;
 }
 
-.marker.selected {
-    filter: hue-rotate(180deg);
-    z-index: 999;
-}
+    .marker.selected {
+        filter: hue-rotate(180deg);
+        z-index: 999;
+    }
 
-.marker.disconnected {
-    filter: grayscale(1.0);
-}
+    .marker.disconnected {
+        filter: grayscale(1.0);
+    }
 
 .player-icon {
     width: 100%;
@@ -65,35 +65,32 @@ body {
     left: 10px;
     z-index: 1000;
     padding: 10px;
-    max-width: 90vw;
-    width: 300px;
 }
 
 .information {
     background: rgba(255, 255, 255, 0.9);
     padding: 10px;
     border-radius: 5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 #deviceList {
-    max-height: 70vh;
+    max-height: 85vh;
     overflow-y: auto;
     padding: 0;
     list-style-type: none;
 }
 
-#deviceList li {
-    background: rgba(255, 255, 255, 0.9);
-    font-size: 12px;
-    margin: 10px 0;
-    padding: 0 10px;
-    border: 1px solid #ddd;
-}
+    #deviceList li {
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        margin: 10px 0 10px 0;
+        padding: 0 10px 0 10px;
+        border: 1px solid #ddd;
+    }
 
-#deviceList li.selected {
-    background: rgba(173, 216, 230, 0.9);
-}
+        #deviceList li.selected {
+            background: rgba(173, 216, 230, 0.9);
+        }
 
 .definition-list {
     font-size: 10px;
@@ -102,17 +99,17 @@ body {
     list-style: none;
 }
 
-.definition-list dt {
-    font-weight: bold;
-    margin-top: 5px;
-}
+    .definition-list dt {
+        font-weight: bold;
+        margin-top: 5px;
+    }
 
-.definition-list dd {
-    font-size: 1em;
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding-left: 20px;
-}
+    .definition-list dd {
+        font-size: 1em;
+        margin-bottom: 5px;
+        margin-left: 0;
+        padding-left: 20px;
+    }
 
 .popup {
     position: absolute;
@@ -124,16 +121,15 @@ body {
     border-radius: 10px;
     display: none;
     z-index: 1001;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.popup h2 {
-    margin: 0 0 10px;
-}
+    .popup h2 {
+        margin: 0 0 10px;
+    }
 
-.popup div {
-    margin: 0 0 10px;
-}
+    .popup div {
+        margin: 0 0 10px;
+    }
 
 button {
     display: inline-block;
@@ -144,55 +140,23 @@ button {
     text-align: center;
     text-decoration: none;
     font-size: 16px;
-    cursor: pointer;
+    cursor: pointer
 }
 
-button.info {
-    background-color: #4caf50;
-    color: white;
-}
-
-button.info:hover {
-    background-color: #45a049;
-}
-
-button.warn {
-    background-color: #ce2525;
-    color: white;
-}
-
-button.warn:hover {
-    background-color: #9c2727;
-}
-
-/* スマートフォン対応のメディアクエリ */
-@media (max-width: 600px) {
-    #informations {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        width: 100vw;
-        padding: 5px;
+    button.info {
+        background-color: #4caf50;
+        color: white;
     }
 
-    .information {
-        padding: 5px;
-        border-radius: 0;
+        button.info:hover {
+            background-color: #45a049;
+        }
+
+    button.warn {
+        background-color: #ce2525;
+        color: white;
     }
 
-    #deviceList {
-        max-height: 50vh;
-    }
-
-    .popup {
-        min-width: 100vw;
-        bottom: 0;
-        right: 0;
-        border-radius: 0;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-}
+        button.warn:hover {
+            background-color: #9c2727;
+        }
