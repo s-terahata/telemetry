@@ -95,24 +95,25 @@ window.addEventListener('load', () => {
 
 // ビューポートのサイズ変更時の処理
 window.addEventListener('resize', () => {
-    const diffX = (window.innerWidth - viewportWidth) / viewportWidthOrigin;
-    const diffY = (window.innerHeight - viewportHeight) / viewportHeightOrigin;
+    const diffX = window.innerWidth - viewportWidth;
+    const diffY = window.innerHeight - viewportHeight;
     viewportWidth = window.innerWidth;
     viewportHeight = window.innerHeight;
     Object.keys(players).forEach(key => {
-        // 座標の調整
+        // ピクセルベースの座標調整
         const player = players[key];
-        player.x = player.x + diffX;
-        player.y = player.y + diffY;
+        player.x += diffX / 2;
+        player.y += diffY / 2;
         // マーカー座標の更新
         const marker = player.marker;
-        marker.style.left = `${player.x}%`;
-        marker.style.top = `${player.y}%`;
+        marker.style.left = `${player.x}px`;
+        marker.style.top = `${player.y}px`;
     });
 });
 
 // マップ上でマウスボタン押下時の処理
 map.addEventListener('mousedown', (e) => {
+    return;
     isDragging = true;
     startX = e.clientX - mapX;
     startY = e.clientY - mapY;
@@ -121,6 +122,7 @@ map.addEventListener('mousedown', (e) => {
 
 // マップ上でマウス移動時の処理
 map.addEventListener('mousemove', (e) => {
+    return;
     if (isDragging) {
         mapX = e.clientX - startX;
         mapY = e.clientY - startY;
@@ -130,12 +132,14 @@ map.addEventListener('mousemove', (e) => {
 
 // マップ上でマウスボタンを離したときの処理
 map.addEventListener('mouseup', () => {
+    return;
     isDragging = false;
     map.style.cursor = 'グラブ';
 });
 
 // マップ上でマウスホイールを使用したときの処理
 map.addEventListener('wheel', (e) => {
+    return;
     e.preventDefault();
     const scaleAmount = 0.1;
     scale += e.deltaY > 0 ? -scaleAmount : scaleAmount;
@@ -223,23 +227,23 @@ function onMessageArrived(message) {
     }
     logData[userId].push(`[${timestamp}] トピック: ${topic}, メッセージ: ${message.payloadString}`);
 
-    const rawX = (telemetry.posX * posScaleX) + posOffsetX;
-    const rawY = (telemetry.posY * posScaleY) + posOffsetY;
-    const rotated = applyRotationOffset(rawX, rawY, rotOffsetY, posOffsetX, posOffsetY);
-    const x = rotated.x;
-    const y = rotated.y;
-    const rotation = telemetry.angle + rotOffsetY;
+const rawX = (telemetry.posX * posScaleX) + posOffsetX;
+const rawY = (telemetry.posY * posScaleY) + posOffsetY;
+const rotated = applyRotationOffset(rawX, rawY, rotOffsetY, posOffsetX, posOffsetY);
+const x = rotated.x;
+const y = rotated.y;
+const rotation = telemetry.angle + rotOffsetY;
 
-    if (!players[userId]) {
-        playerCount++;
-        updatePlayerCountUI();
+if (!players[userId]) {
+    playerCount++;
+    updatePlayerCountUI();
 
-        // マップにマーカーを追加
-        const marker = document.createElement('div');
-        marker.className = 'marker';
-        marker.style.left = `${x}%`;
-        marker.style.top = `${y}%`;
-        marker.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+    // マップにマーカーを追加
+    const marker = document.createElement('div');
+    marker.className = 'marker';
+    marker.style.left = `${x}px`;
+    marker.style.top = `${y}px`;
+    marker.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
 
         // プレイヤー番号をマーカーに追加
         const playerNumber = document.createElement('div');
@@ -300,7 +304,7 @@ function changeSelectPlayer() {
     });
     players[selectedUserId].marker.classList.add('selected');
     players[selectedUserId].listItem.classList.add('selected');
-    focusPlayerMarker(selectedUserId);
+    //focusPlayerMarker(selectedUserId);
 }
 
 // 選択したアイテムまでスクロール
@@ -413,7 +417,7 @@ function updateListItem(listItem, deviceInfo, gameInfo) {
 function createListItemHtml(deviceInfo, gameInfo) {
     let itemText = `<dt>タイムライン</dt><dd>${formatTime(gameInfo.time)}</dd>`;
     itemText += `<dt>バッテリーレベル</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
-    itemText += `<dt>温度状態</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
+    //itemText += `<dt>温度状態</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
     return itemText;
 }
 
