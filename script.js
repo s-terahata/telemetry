@@ -19,12 +19,13 @@ const mapInfoDiv = document.getElementById('mapInfo');
 // MQTTブローカーのURL
 const mqttBrokerUrl = "wss://m8f92daf.ala.asia-southeast1.emqxsl.com:8084/mqtt";
 const subscribeTopic = "player/telemetry/#";
-const posScaleX = 0.23;
-const posScaleY = -0.23;
-const posOffsetX = 31;
-const posOffsetY = 63;
-const rotOffsetY = -95;
-
+const posScaleX = 4;
+const posScaleY = -4;
+const posOffsetX = 62;
+const posOffsetY = 66;
+const rotOffsetY = -120;
+const mqttBrokerID = "tyffon_mirrorge";
+const mqttBrokerPW = "tyffon1111";
 const userAgentID = navigator.userAgent + "_" + new Date().getTime();
 
 // バッテリー状態マップ
@@ -155,8 +156,8 @@ client.onMessageArrived = onMessageArrived;
 client.connect({
     onSuccess: onConnect,
     onFailure: onFailure,
-    userName: "tyffon_mirrorge",
-    password: "tyffon1111",
+    userName: mqttBrokerID,
+    password: mqttBrokerPW,
 });
 
 // メッセージ送信関数
@@ -185,7 +186,26 @@ function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("接続が失われました: " + responseObject.errorMessage);
         statusDiv.innerHTML = "接続が失われました: " + responseObject.errorMessage;
+        // 再接続を試みる
+        attemptReconnect();
     }
+}
+
+// 再接続を試みる関数
+function attemptReconnect() {
+    console.log("再接続を試みています...");
+    statusDiv.innerHTML = "再接続を試みています...";
+    client.connect({
+        onSuccess: onConnect,
+        onFailure: function (responseObject) {
+            console.log("再接続に失敗しました: " + responseObject.errorMessage);
+            statusDiv.innerHTML = "再接続に失敗しました: " + responseObject.errorMessage;
+            // 再試行までの待機時間（例えば5秒）
+            setTimeout(attemptReconnect, 5000);
+        },
+        userName: mqttBrokerID,
+        password: mqttBrokerPW,
+    });
 }
 
 // メッセージ到着時の処理
