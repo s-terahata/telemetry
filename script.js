@@ -204,7 +204,7 @@ function attemptReconnect() {
         onFailure: function (responseObject) {
             console.log("再接続に失敗しました: " + responseObject.errorMessage);
             statusDiv.innerHTML = "再接続に失敗しました: " + responseObject.errorMessage;
-            // 再試行までの待機時間（例えば5秒）
+            // 再試行までの待機時間
             setTimeout(attemptReconnect, 5000);
         },
         userName: mqttBrokerID,
@@ -416,8 +416,8 @@ function updateListItem(listItem, deviceInfo, gameInfo) {
 
 // リストアイテムのHTML生成
 function createListItemHtml(deviceInfo, gameInfo) {
-    let itemText = `<dt>タイムライン</dt><dd>${formatTime(gameInfo.time)}</dd>`;
-    itemText += `<dt>バッテリーレベル</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
+    let itemText = `<dt>タイムライン</dt><dd class="timeline-text">${formatTime(gameInfo.time)}</dd>`;
+    itemText += `<dt>バッテリーレベル</dt><dd class="timeline-text">${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
     //itemText += `<dt>温度状態</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
     return itemText;
 }

@@ -78,6 +78,11 @@ body {
     border-radius: 5px;
 }
 
+.timeline-text {
+    font-size: 2em;
+    font-weight: bold;
+}
+
 #deviceList {
     height: 85vh;
     overflow-y: auto;
