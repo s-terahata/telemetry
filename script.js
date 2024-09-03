@@ -215,8 +215,9 @@ function attemptReconnect() {
 // メッセージ到着時の処理
 function onMessageArrived(message) {
     const topic = message.destinationName;
-    const userId = topic.split('/')[2];
     const telemetry = JSON.parse(message.payloadString);
+     // `deviceUniqueIdentifier`を`userId`として使用
+    const userId = telemetry.deviceInfo.deviceUniqueIdentifier;
 
     // プレイヤーのタイムアウトタイマーをリセットまたは開始
     resetTimeoutTimer(userId);
