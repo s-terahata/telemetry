@@ -19,8 +19,8 @@ const mapInfoDiv = document.getElementById('mapInfo');
 // MQTTブローカーのURL
 const mqttBrokerUrl = "wss://m8f92daf.ala.asia-southeast1.emqxsl.com:8084/mqtt";
 const subscribeTopic = "player/telemetry/#";
-const posScaleX = 4;
-const posScaleY = -4;
+const posScaleX = 4.4;
+const posScaleY = -4.4;
 const posOffsetX = 62;
 const posOffsetY = 66;
 const rotOffsetY = -120;
@@ -344,7 +344,7 @@ function resetTimeoutTimer(userId) {
     }
     timeoutTimers[userId] = setTimeout(() => {
         removePlayer(userId);
-    }, 10000); // 10秒
+    }, 20000); // 10秒
 }
 
 // プレイヤーの削除
