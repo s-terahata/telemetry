@@ -294,19 +294,19 @@ if (!players[userId]) {
         deviceList.appendChild(listItem);
 
         // プレイヤー情報を更新
-        players[userId] = { number: playerCount, marker, listItem, x, y, rotation, deviceInfo: telemetry.deviceInfo };
+        players[userId] = { number: playerCount, marker, listItem, x, y, rotation, deviceInfo: telemetry.deviceInfo, appVersion: telemetry.appVersion };
     } else {
         // 既存プレイヤーの情報を更新
         const marker = players[userId].marker;
         animateMarker(marker, players[userId], { x, y, rotation });
         const listItem = players[userId].listItem;
         updateListItem(listItem, telemetry.deviceInfo, telemetry.gameInfo);
-        players[userId] = { number: players[userId].number, marker, listItem, x, y, rotation, deviceInfo: telemetry.deviceInfo };
+        players[userId] = { number: players[userId].number, marker, listItem, x, y, rotation, deviceInfo: telemetry.deviceInfo, appVersion: telemetry.appVersion  };
     }
 
     // 現在のユーザーのデバイス情報を表示
     if (popup.style.display === 'block' && selectedUserId === userId) {
-        showDeviceInfo(players[userId].number, players[userId].deviceInfo);
+        showDeviceInfo(players[userId]);
     }
 }
 
@@ -314,7 +314,7 @@ if (!players[userId]) {
 function onSelectDevice(userId) {
     selectedUserId = userId;
     changeSelectPlayer();
-    showDeviceInfo(players[userId].number, players[userId].deviceInfo);
+    showDeviceInfo(players[userId]);
 }
 
 // プレイヤー選択時のUI更新
@@ -448,10 +448,11 @@ function updatePlayerCountUI() {
 }
 
 // デバイス情報の表示
-function showDeviceInfo(number, deviceInfo) {
+function showDeviceInfo(player) {
+    const deviceInfo = player.deviceInfo;
     // ヘッダー部分
     const header = popup.querySelector("h2");
-    const labelName = deviceLabels[deviceInfo.deviceUniqueIdentifier] || `Unknown ${number} Info`;
+    const labelName = deviceLabels[deviceInfo.deviceUniqueIdentifier] || `Unknown ${player.number} Info`;
     header.innerHTML = labelName;
 
     // 本文部分
@@ -463,6 +464,7 @@ function showDeviceInfo(number, deviceInfo) {
     info += `<dt>バッテリーレベル</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
     info += `<dt>バッテリー状態</dt><dd>${batteryStatusMap[deviceInfo.batteryStatus]}</dd>`;
     info += `<dt>温度状態</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
+    info += `<dt>アプリバージョン</dt><dd>${player.appVersion}</dd>`;
     body.innerHTML = info;
 
     popup.style.display = 'block';
