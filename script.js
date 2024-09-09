@@ -270,7 +270,7 @@ function onMessageArrived(message) {
     const userId = telemetry.deviceInfo.deviceUniqueIdentifier;
 
     if (!(userId in deviceLabels)) {
-        return;
+    //    return;
     }
 
     // プレイヤーのタイムアウトタイマーをリセットまたは開始
