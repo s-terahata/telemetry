@@ -48,6 +48,17 @@ const mqttBrokerID = "tyffon_mirrorge";
 const mqttBrokerPW = "tyffon1111";
 const userAgentID = navigator.userAgent + "_" + new Date().getTime();
 
+// deviceLabelsの最後の3桁を取得する関数
+function getLastThreeDigits(label) {
+    // ラベル内の数字部分（1つ以上の連続した数字）を探す
+    const match = label.match(/\d+/);
+    if (match) {
+        // 見つかった数字から先頭の0を除去して返す
+        return parseInt(match[0], 10).toString(); // 数字を整数としてパースしてから文字列に変換
+    }
+    return ""; // 数字が見つからない場合は"未定義"
+}
+
 function getSequenceName(seconds) {
     if (seconds <= 0) {
         return "カートタッチ前";
@@ -289,9 +300,10 @@ if (!players[userId]) {
     marker.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
 
         // プレイヤー番号をマーカーに追加
+        const label = deviceLabels[telemetry.deviceInfo.deviceUniqueIdentifier] || `Unknown`;
         const playerNumber = document.createElement('div');
         playerNumber.className = 'player-number';
-        playerNumber.innerText = playerCount;
+        playerNumber.innerText = getLastThreeDigits(label);
         marker.appendChild(playerNumber);
 
         // アイコンとimgタグを挿入
