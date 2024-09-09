@@ -1,7 +1,4 @@
 const deviceLabels = {
-    "649CC3DA-039D-5570-9605-1A39B4C10502": "[DEV] Terahata MBP",
-    "D2045C28-3E80-449A-81B4-BB9021C4BFCD": "[DEV] Terahata AVP",
-    "00DFABD2-AAEB-4AB7-B90E-6C6DDF7E111F": "[DEV] Aoyama AVP",
     "22B335D9-751C-4F7B-93C5-B8DADB6551DD": "MO-001",
     "252AE03B-D304-4E40-93FA-1F4B50652AFC": "MO-002",
     "22EC88D1-344B-4E3D-BFD4-4319E296F897": "MO-003",
@@ -271,6 +268,10 @@ function onMessageArrived(message) {
     const telemetry = JSON.parse(message.payloadString);
      // `deviceUniqueIdentifier`を`userId`として使用
     const userId = telemetry.deviceInfo.deviceUniqueIdentifier;
+
+    if (!(userId in deviceLabels)) {
+        return;
+    }
 
     // プレイヤーのタイムアウトタイマーをリセットまたは開始
     resetTimeoutTimer(userId);
