@@ -5,6 +5,9 @@ body {
     background-color: #e5e1e4;
 }
 
+.no-indent dd {
+}
+
 #mapContainer {
     width: 100vw; /* 画面全体に広がる */
     height: 100vh; /* 画面全体に広がる */
@@ -13,21 +16,21 @@ body {
 }
 
 #map {
-    width: 434px; /* 固定幅 */
-    height: 636px; /* 固定高さ */
+    width: 234px; /* 固定幅 */
+    height: 342px; /* 固定高さ */
     position: absolute;
     background: url('map.png') no-repeat center center;
     background-size: contain; /* 固定サイズで表示 */
     left: 50%; /* 中心に配置 */
     top: 50%; /* 中心に配置 */
-    transform: translate(-50%, -50%); /* 地図の中心をウィンドウの中心に合わせる */
+    transform: translate(-30%, -90%); /* 地図の中心をウィンドウの中心に合わせる */
     cursor: grab;
 }
 
 .marker {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 10px;
     transform: translate(-50%, -50%); /* アイコンの中心を位置の基準にする */
 }
 
@@ -63,13 +66,13 @@ body {
 
 #informations {
     position: absolute;
-    width: 25vw;
+    width: 30vw;
     top: 0px;
     bottom: 0px;
     left: 0px;
     z-index: 1000;
     padding: 0px;
-    font-size: 0.5em;
+    font-size: 0.1em;
 }
 
 .information {
@@ -79,8 +82,7 @@ body {
 }
 
 .timeline-text {
-    font-size: 2em;
-    font-weight: bold;
+    font-size: 0.5em;
 }
 
 #deviceList {
@@ -92,8 +94,8 @@ body {
 
     #deviceList li {
         background: rgba(255, 255, 255, 0.9);
-        margin: 10px 0 10px 0;
-        padding: 0 10px 0 10px;
+        margin: 5px 0 5px 0;
+        padding: 0 5px 0 10px;
         border: 1px solid #ddd;
     }
 
@@ -119,31 +121,34 @@ body {
     }
 
 .popup {
+    display: none;
     position: absolute;
-    bottom: 5px;
-    right: 5px;
-    width: 25vw;
+    height: 50vh;
+    overflow-y: auto;
+    width: 50vw;
+    bottom: 0px;
+    right: 0px;
     background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 10px;
+    padding: 5px;
+    border-radius: 5px;
     z-index: 1001;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    font-size: 0.1em;
+    font-size: 0.5em;
 }
 
     .popup h2 {
-        margin: 0 0 10px;
+        margin: 0 0 5px;
     }
 
     .popup div {
-        margin: 0 0 10px;
+        margin: 0 0 5px;
     }
 
 button {
     display: inline-block;
     width: 100%;
-    padding: 10px 10px;
-    border-radius: 10px;
+    padding: 5px 5px;
+    border-radius: 5px;
     border: none;
     text-align: center;
     text-decoration: none;

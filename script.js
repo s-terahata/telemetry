@@ -64,7 +64,7 @@ function getSequenceName(seconds) {
     } else if (seconds <= 380) {
         return "フリーローム";
     } else if (seconds >= 370 && seconds <= 389) {
-        return "魔法陣到着を待機中";
+        return "魔法陣待機中";
     } else if(seconds <= 490) {
         return "ドラゴン襲来";
     } else if(seconds <= 700) {
@@ -472,8 +472,8 @@ function updateListItem(listItem, deviceInfo, gameInfo) {
 // リストアイテムのHTML生成
 function createListItemHtml(deviceInfo, gameInfo) {
     const sequenceName = getSequenceName(gameInfo.time);
-    let itemText = `<dt>タイムライン</dt><dd class="timeline-text">${formatTime(gameInfo.time)} [${sequenceName}]</dd>`;
-    itemText += `<dt>バッテリーレベル</dt><dd class="timeline-text">${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
+    let itemText = `<div class="no-indent">タイムライン${formatTime(gameInfo.time)}</dd><div class="no-indent">${sequenceName}</dd>`;
+    itemText += `<div class="no-indent">バッテリー ${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
     //itemText += `<dt>温度状態</dt><dd>${thermalStatusMap[deviceInfo.thermalStatus]}</dd>`;
     return itemText;
 }
