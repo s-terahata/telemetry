@@ -306,6 +306,7 @@ if (!players[userId]) {
         playerNumber.className = 'player-number';
         playerNumber.innerText = getLastThreeDigits(label);
         marker.appendChild(playerNumber);
+        playerNumber.style.transform = `translate(-50%, -50%) rotate(${-rotation}deg)`;
 
         // アイコンとimgタグを挿入
         const icon = document.createElement('img');
@@ -423,6 +424,7 @@ function normalizeAngle(angle) {
 // マーカーのアニメーション
 function animateMarker(marker, from, to, duration = 1000) {
     const startTime = performance.now();
+    const playerNumber = marker.querySelector('.player-number');
 
     function animate(time) {
         const elapsed = time - startTime;
@@ -436,6 +438,11 @@ function animateMarker(marker, from, to, duration = 1000) {
         marker.style.left = `${newX}%`;
         marker.style.top = `${newY}%`;
         marker.style.transform = `translate(-50%, -50%) rotate(${newRotation}deg)`;
+        
+        if (playerNumber) {
+            playerNumber.style.transform = `translate(-50%, -50%) rotate(${-newRotation}deg)`;
+        }
+
 
         if (t < 1) {
             requestAnimationFrame(animate);
