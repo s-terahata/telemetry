@@ -1,3 +1,26 @@
+const deviceLabels = {
+    "22B335D9-751C-4F7B-93C5-B8DADB6551DD": "MO-001",
+    "252AE03B-D304-4E40-93FA-1F4B50652AFC": "MO-002",
+    "22EC88D1-344B-4E3D-BFD4-4319E296F897": "MO-003",
+    "F3582880-2C13-484A-868E-E6FA9812CDFA": "MO-004",
+    "B0BCF561-6C34-4B16-847C-4D609F14ABB8": "MO-005",
+    "8C88C5BA-1706-4FAA-A674-214DA3309D66": "MO-006",
+    "22A68308-3636-4131-85A1-86B552F89279": "MO-007",
+    "07A559F3-0DCD-4572-9310-81BCC52C16C2": "MO-008",
+    "6285D032-A994-4982-88C6-491AA9252E08": "MO-009",
+    "8990A3DD-7A4B-4C47-B737-008D114D86E9": "MO-010",
+    "FABBC3A1-7AA7-4FF4-838C-6DDCC599F001": "MO-011",
+    "E3777A9E-926F-4829-B5D7-0E6197366C0A": "MO-012",
+    "AA261AFE-624C-454E-AE27-6E9A40AF74F6": "MO-013",
+    "1E16E6A7-7844-447F-B062-2BE20623E9B0": "MO-014",
+    "680E9DCC-0B2C-44B1-BAC7-6ABE51541B26": "MO-015",
+    "A6D4E156-7973-4C28-9FAB-498E07D6FEFF": "MO-016",
+    "B3D78251-663E-44D4-B95A-3CF1DCC83A62": "MO-017",
+    "A8F2328B-2F29-44CE-8838-67BFD0C18890": "MO-018",
+    "042F7F95-AE29-4ACF-A174-13270C1B0ACD": "MO-019",
+    "BBC86D95-C306-493B-AECE-D012539F92FC": "MO-020",
+};
+
 const statusDiv = document.getElementById('status');
 const coordinatesDiv = document.getElementById('coordinates');
 const deviceList = document.getElementById('deviceList')
@@ -243,12 +266,12 @@ function attemptReconnect() {
 function onMessageArrived(message) {
     const topic = message.destinationName;
     const telemetry = JSON.parse(message.payloadString);
-    if(!telemetry.deviceInfo.deviceName.includes("MO"))
-    {
+     // `deviceUniqueIdentifier`を`userId`として使用
+    const userId = telemetry.deviceInfo.deviceUniqueIdentifier;
+
+    if (!(userId in deviceLabels)) {
     //    return;
     }
-    // `deviceUniqueIdentifier`を`userId`として使用
-    const userId = telemetry.deviceInfo.deviceUniqueIdentifier;
 
     // プレイヤーのタイムアウトタイマーをリセットまたは開始
     resetTimeoutTimer(userId);
@@ -278,12 +301,11 @@ if (!players[userId]) {
     marker.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
 
         // プレイヤー番号をマーカーに追加
-        const label = telemetry.deviceInfo.deviceName;
+        const label = deviceLabels[telemetry.deviceInfo.deviceUniqueIdentifier] || `Unknown`;
         const playerNumber = document.createElement('div');
         playerNumber.className = 'player-number';
         playerNumber.innerText = getLastThreeDigits(label);
         marker.appendChild(playerNumber);
-        playerNumber.style.transform = `translate(-50%, -50%) rotate(${-rotation}deg)`;
 
         // アイコンとimgタグを挿入
         const icon = document.createElement('img');
@@ -401,7 +423,6 @@ function normalizeAngle(angle) {
 // マーカーのアニメーション
 function animateMarker(marker, from, to, duration = 1000) {
     const startTime = performance.now();
-    const playerNumber = marker.querySelector('.player-number');
 
     function animate(time) {
         const elapsed = time - startTime;
@@ -415,11 +436,6 @@ function animateMarker(marker, from, to, duration = 1000) {
         marker.style.left = `${newX}%`;
         marker.style.top = `${newY}%`;
         marker.style.transform = `translate(-50%, -50%) rotate(${newRotation}deg)`;
-        
-        if (playerNumber) {
-            playerNumber.style.transform = `translate(-50%, -50%) rotate(${-newRotation}deg)`;
-        }
-
 
         if (t < 1) {
             requestAnimationFrame(animate);
@@ -432,7 +448,7 @@ function animateMarker(marker, from, to, duration = 1000) {
 // リストアイテムの生成
 function createListItem(playerCount, deviceInfo, gameInfo) {
     const itemHeader = document.createElement('h3');
-    let labelName = deviceInfo.deviceName;
+    let labelName = deviceLabels[deviceInfo.deviceUniqueIdentifier] || `Unknown ${playerCount}`;
     itemHeader.innerHTML = labelName;
 
     const itemBody = document.createElement('dl');
@@ -472,12 +488,14 @@ function showDeviceInfo(player) {
     const deviceInfo = player.deviceInfo;
     // ヘッダー部分
     const header = popup.querySelector("h2");
-    const labelName = deviceInfo.deviceName;
+    const labelName = deviceLabels[deviceInfo.deviceUniqueIdentifier] || `Unknown ${player.number} Info`;
     header.innerHTML = labelName;
 
     // 本文部分
     const body = deviceInfoDiv.querySelector(".definition-list");
     let info = `<dt>デバイスモデル</dt><dd>${deviceInfo.deviceModel}</dd>`;
+    info += `<dt>デバイス名</dt><dd>${deviceInfo.deviceName}</dd>`;
+    info += `<dt>デバイスID</dt><dd>${deviceInfo.deviceUniqueIdentifier}</dd>`;
     info += `<dt>OS</dt><dd>${deviceInfo.operatingSystem}</dd>`;
     info += `<dt>バッテリーレベル</dt><dd>${(deviceInfo.batteryLevel * 100).toFixed(0)}%</dd>`;
     info += `<dt>バッテリー状態</dt><dd>${batteryStatusMap[deviceInfo.batteryStatus]}</dd>`;
