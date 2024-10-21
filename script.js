@@ -34,7 +34,7 @@ const forceStopButton = document.getElementById('forceStopButton');
 const mapInfoDiv = document.getElementById('mapInfo');
 
 // MQTTブローカーのURL
-const mqttBrokerUrl = "wss://m8f92daf.ala.asia-southeast1.emqxsl.com:8084/mqtt";
+const mqttBrokerUrl = "wss://a942597f.ala.asia-southeast1.emqxsl.com:8084/mqtt";
 const subscribeTopic = "player/telemetry/#";
 const posScaleX = 4.4;
 const posScaleY = -4.4;
