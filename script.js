@@ -23,7 +23,7 @@ const deviceLabels = {
 
 const statusDiv = document.getElementById('status');
 const coordinatesDiv = document.getElementById('coordinates');
-const deviceList = document.getElementById('deviceList')
+const deviceList = document.getElementById('deviceList');
 const map = document.getElementById('map');
 const mapContainer = document.getElementById('mapContainer');
 const popup = document.getElementById('popup');
