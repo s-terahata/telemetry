@@ -59,19 +59,15 @@ function getLastThreeDigits(label) {
 function getSequenceName(seconds) {
     if (seconds <= 0) {
         return "カートタッチ前";
-    } else if (seconds <= 145) {
-        return "チュートリアル";
-    } else if (seconds <= 380) {
+    } else if (seconds <= 450) {
         return "フリーローム";
-    } else if (seconds >= 370 && seconds <= 389) {
-        return "魔法陣待機中";
-    } else if(seconds <= 490) {
+    } else if(seconds <= 470) {
         return "ドラゴン襲来";
-    } else if(seconds <= 700) {
-        return "ドラゴン戦";
-    } else if(seconds < 900) {
+    } else if(seconds <= 726) {
+        return "空中戦";
+    } else if(seconds < 780) {
         return "エンディング";
-    } else if (seconds <= 1500) {
+    } else if (seconds <= 3000) {
         return "体験終了";
     }
 
